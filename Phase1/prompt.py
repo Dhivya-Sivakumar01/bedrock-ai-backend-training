@@ -1,13 +1,12 @@
 import boto3
 import json
+from config import BedrockConfig
 
-region = 'us-east-1'
+region = BedrockConfig.REGION
 bedrockClient = boto3.client(service_name="bedrock-runtime", region_name=region)
+MODEL_ID = BedrockConfig.MODELS["claude"]
 
-def invoke_claudeSonnet_text( system_instr, prompt, model_id='anthropic.claude-3-5-sonnet-20240620-v1:0', region='us-east-1'):
-    """
-    Invokes an Anthropic claude to generate a response.
-    """
+def invoke_claudeSonnet_text( system_instr, prompt, model_id=MODEL_ID):
     try:
         body = json.dumps({
             "anthropic_version": "bedrock-2023-05-31",
@@ -39,8 +38,7 @@ def invoke_claudeSonnet_text( system_instr, prompt, model_id='anthropic.claude-3
 # Role
 # Task (e.g., instructions, requirements, examples)
 # Context (e.g., RAG)
-system_instr = '''You are an animal expert.
-    You need to answer questions related to animals only. If the questions are not related to animals, reply with 'I can answer only questions related to animals and this is irrelevant question.'''
+system_instr = '''You are helpful assistant'''
 
 # Input (e.g., question)
 # Output indicator (e.g., format)
@@ -75,6 +73,7 @@ chain_of_thought = '''
 structured_output_strict = '''
     You are an animal expert.
     You need to answer questions related to animals only. If the questions are not related to animals, reply with 'I can answer only questions related to animals and this is irrelevant question.'
+    Provide me domestic animal sounds.
     You must return ONLY valid JSON with provided schema and not to include explanations.
     Do not include markdown.
     Do not include text outside JSON.

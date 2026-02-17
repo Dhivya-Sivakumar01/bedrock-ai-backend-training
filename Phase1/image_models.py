@@ -4,10 +4,12 @@ import json
 import os
 import random
 
+region = os.getenv("BEDROCK_REGION", "us-east-1")
 # Create a Bedrock Runtime client in the AWS Region of your choice.
-bedrockClient = boto3.client("bedrock-runtime", region_name="us-east-1")
+bedrockClient = boto3.client("bedrock-runtime", region_name=region)
+titanModelId = os.getenv("TITAN_MODEL_ID")
 
-def invoke_image_model(prompt, model_id="amazon.titan-image-generator-v2:0"):
+def invoke_image_model(prompt, model_id=titanModelId):
     # Generate a random seed.
     seed = random.randint(0, 2147483647)
     # Format the request payload using the model's native structure.

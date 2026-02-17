@@ -1,17 +1,17 @@
 import boto3
 import json
+from config import BedrockConfig
 
-region = "us-east-1"
+region = BedrockConfig.REGION
 bedrockAgentClient = boto3.client(service_name="bedrock-agent")
 bedrockRunClient = boto3.client(
     "bedrock-runtime",
     region_name=region
 )
 
-MODEL_ID = "anthropic.claude-3-5-sonnet-20240620-v1:0"
-
-PROMPT_ID = "BM4MUP3ZEV"
-PROMPT_VERSION = "1"
+MODEL_ID = BedrockConfig.MODELS["claude"]
+PROMPT_ID = BedrockConfig.EVALUATE_PROMPT["promptId"]
+PROMPT_VERSION = BedrockConfig.EVALUATE_PROMPT["promptVersion"]
 
 def fetch_prompt_template():
 
