@@ -1,3 +1,5 @@
 learnings.txt
 .env
 __pycache__
+data
+*_index
