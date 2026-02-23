@@ -6,6 +6,7 @@ region = BedrockConfig.REGION
 bedrockClient = boto3.client(service_name="bedrock-runtime", region_name=region)
 MODEL_ID = BedrockConfig.MODELS["claude"]
 
+
 def converse_claudeSonnet_text(system_instruction, prompt, model_id=MODEL_ID):
     """
     Using Converse an Anthropic claude text model to generate a response.
@@ -14,17 +15,8 @@ def converse_claudeSonnet_text(system_instruction, prompt, model_id=MODEL_ID):
         response = bedrockClient.converse(
             modelId=model_id,
             system=[{"text": system_instruction}],
-            messages=[
-                {
-                    "role": "user",
-                    "content": [{"text": prompt}]
-                }
-            ],
-            inferenceConfig={
-                "temperature": 1,
-                "maxTokens": 512,
-                "topP": 0.9
-            }
+            messages=[{"role": "user", "content": [{"text": prompt}]}],
+            inferenceConfig={"temperature": 1, "maxTokens": 512, "topP": 0.9},
         )
 
         return response["output"]["message"]["content"][0]["text"]
@@ -32,7 +24,10 @@ def converse_claudeSonnet_text(system_instruction, prompt, model_id=MODEL_ID):
         print(f"Error in converse api call: {e}")
         return None
 
-def conversestream_claudeSonnet_text_guardrail(system_instruction, prompt, model_id=MODEL_ID):
+
+def conversestream_claudeSonnet_text_guardrail(
+    system_instruction, prompt, model_id=MODEL_ID
+):
     """
     Using Converse Stream api an Anthropic claude text model to generate a streaming response.
     """
@@ -40,26 +35,13 @@ def conversestream_claudeSonnet_text_guardrail(system_instruction, prompt, model
         response = bedrockClient.converse_stream(
             modelId=model_id,
             system=[{"text": system_instruction}],
-            messages=[
-                {
-                    "role": "user",
-                    "content": [{"text": prompt}]
-                }
-            ],
-            inferenceConfig={
-                "temperature": 1,
-                "maxTokens": 512,
-                "topP": 0.9
-            },
+            messages=[{"role": "user", "content": [{"text": prompt}]}],
+            inferenceConfig={"temperature": 1, "maxTokens": 512, "topP": 0.9},
             guardrailConfig={
                 "guardrailIdentifier": "gr-abc123xyz",
-                "guardrailVersion": "1"
+                "guardrailVersion": "1",
             },
-            additionalModelRequestFields={
-                "guardrailConfig": {
-                    "trace": "ENABLED"
-                }
-            }
+            additionalModelRequestFields={"guardrailConfig": {"trace": "ENABLED"}},
         )
 
         # return response["output"]["message"]["content"][0]["text"]
@@ -79,28 +61,26 @@ def conversestream_claudeSonnet_text_guardrail(system_instruction, prompt, model
         print(f"Error in converse api call: {e}")
         return None
 
+
 def invoke_claudeSonnet_text(system_instr, prompt, model_id=MODEL_ID):
     """
     Invokes an Anthropic claude to generate a response.
     """
     try:
-        body = json.dumps({
-            "anthropic_version": "bedrock-2023-05-31",
-            "system": system_instr,
-            "max_tokens": 512,
-            "temperature": 0.5,
-            "messages": [
-                {
-                    "role": "user",
-                    "content": prompt
-                }
-            ]
-        })
+        body = json.dumps(
+            {
+                "anthropic_version": "bedrock-2023-05-31",
+                "system": system_instr,
+                "max_tokens": 512,
+                "temperature": 0.5,
+                "messages": [{"role": "user", "content": prompt}],
+            }
+        )
         response = bedrockClient.invoke_model(
             body=body,
             modelId=model_id,
             accept="application/json",
-            contentType="application/json"
+            contentType="application/json",
         )
         result = json.loads(response["body"].read())
 
@@ -110,20 +90,21 @@ def invoke_claudeSonnet_text(system_instr, prompt, model_id=MODEL_ID):
         print(f"Error invoking model: {e}")
         return None
 
-#invoke call
+
+# invoke call
 # system_instruction = '''You are an environmental advisor and sustainability expert. Provide accurate, science-based guidance on environmental issues and sustainable practices.'''
 # question = "How to get peace?"
 # response = invoke_claudeSonnet_text(system_instruction, question)
 # print(f"Q: {question}\nR: {response}")
 
-system_instruction='''
+system_instruction = """
             You are a highly experienced mathematics professor with deep expertise in teaching and problem solving.
             Your task is to explain mathematical problems in a clear, structured, and step-by-step manner.
             Follow these guideliness:
             1. Focus ONLY on mathematics. Do NOT include unrelated subjects, stories, or analogies outside mathematics unless absolutely necessary to clarify the math.
             2. Always explain the solution step-by-step in logical order.
-        '''
-response = converse_claudeSonnet_text(system_instruction,'Explain pythagoras theorem')
+        """
+response = converse_claudeSonnet_text(system_instruction, "Explain pythagoras theorem")
 print("Response: ", response)
 
 # system_instruction='''
@@ -134,4 +115,3 @@ print("Response: ", response)
 #             2. Always explain the solution step-by-step in logical order.
 #         '''
 # conversestream_claudeSonnet_text(system_instruction,'Explain pythagoras theorem')
-

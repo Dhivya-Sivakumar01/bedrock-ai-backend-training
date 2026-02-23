@@ -5,6 +5,7 @@ region = BedrockConfig.REGION
 bedrockClient = boto3.client(service_name="bedrock-runtime", region_name=region)
 MODEL_ID = BedrockConfig.MODELS["claude"]
 
+
 def converse_claudeSonnet_guardrail(system_instruction, prompt, model_id=MODEL_ID):
     """
     Using Converse an Anthropic claude text model to generate a response.
@@ -13,24 +14,15 @@ def converse_claudeSonnet_guardrail(system_instruction, prompt, model_id=MODEL_I
         response = bedrockClient.converse(
             modelId=model_id,
             system=[{"text": system_instruction}],
-            messages=[
-                {
-                    "role": "user",
-                    "content": [{"text": prompt}]
-                }
-            ],
-            inferenceConfig={
-                "temperature": 1,
-                "maxTokens": 512,
-                "topP": 0.9
-            },
+            messages=[{"role": "user", "content": [{"text": prompt}]}],
+            inferenceConfig={"temperature": 1, "maxTokens": 512, "topP": 0.9},
             guardrailConfig={
                 "guardrailIdentifier": "tca33k9ab4md",
                 "guardrailVersion": "1",
-                "trace": "enabled"
-            }
+                "trace": "enabled",
+            },
         )
-        if(response["stopReason"]=="guardrail_intervened"):
+        if response["stopReason"] == "guardrail_intervened":
             print("Guardrail interrupt")
 
         return response["output"]["message"]["content"][0]["text"]
@@ -38,7 +30,10 @@ def converse_claudeSonnet_guardrail(system_instruction, prompt, model_id=MODEL_I
         print(f"Error in converse api call: {e}")
         return None
 
-def conversestream_claudeSonnet_text_guardrail(system_instruction, prompt, model_id=MODEL_ID):
+
+def conversestream_claudeSonnet_text_guardrail(
+    system_instruction, prompt, model_id=MODEL_ID
+):
     """
     Using Converse Stream api an Anthropic claude text model to generate a streaming response.
     """
@@ -46,22 +41,13 @@ def conversestream_claudeSonnet_text_guardrail(system_instruction, prompt, model
         response = bedrockClient.converse_stream(
             modelId=model_id,
             system=[{"text": system_instruction}],
-            messages=[
-                {
-                    "role": "user",
-                    "content": [{"text": prompt}]
-                }
-            ],
-            inferenceConfig={
-                "temperature": 1,
-                "maxTokens": 512,
-                "topP": 0.9
-            },
+            messages=[{"role": "user", "content": [{"text": prompt}]}],
+            inferenceConfig={"temperature": 1, "maxTokens": 512, "topP": 0.9},
             guardrailConfig={
                 "guardrailIdentifier": "tca33k9ab4md",
                 "guardrailVersion": "1",
-                "trace": "enabled"
-            }
+                "trace": "enabled",
+            },
         )
 
         # return response["output"]["message"]["content"][0]["text"]
@@ -87,20 +73,23 @@ def conversestream_claudeSonnet_text_guardrail(system_instruction, prompt, model
         print(f"Error in converse api call: {e}")
         return None
 
+
 # system_instruction='''
 #             You are a suggestion tool. Answer the question raised by users
 #         '''
 # response = converse_claudeSonnet_guardrail(system_instruction,'how to kill a person')
 # print("Response: ", response)
 
-system_instruction='''
+system_instruction = """
             You are a highly experienced mathematics professor with deep expertise in teaching and problem solving.
             Your task is to explain mathematical problems in a clear, structured, and step-by-step manner.
             Follow these guideliness:
             1. Focus ONLY on mathematics. Do NOT include unrelated subjects, stories, or analogies outside mathematics unless absolutely necessary to clarify the math.
             2. Always explain the solution step-by-step in logical order.
-        '''
-response = conversestream_claudeSonnet_text_guardrail(system_instruction,'Explain pythagoras theorem')
+        """
+response = conversestream_claudeSonnet_text_guardrail(
+    system_instruction, "Explain pythagoras theorem"
+)
 # print("Response: ", response)
 
 # system_instruction='''

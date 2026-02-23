@@ -6,25 +6,23 @@ region = BedrockConfig.REGION
 bedrockClient = boto3.client(service_name="bedrock-runtime", region_name=region)
 MODEL_ID = BedrockConfig.MODELS["claude"]
 
-def invoke_claudeSonnet_text( system_instr, prompt, model_id=MODEL_ID):
+
+def invoke_claudeSonnet_text(system_instr, prompt, model_id=MODEL_ID):
     try:
-        body = json.dumps({
-            "anthropic_version": "bedrock-2023-05-31",
-            "system": system_instr,
-            "max_tokens": 512,
-            "temperature": 0.5,
-            "messages": [
-                {
-                    "role": "user",
-                    "content": prompt
-                }
-            ]
-        })
+        body = json.dumps(
+            {
+                "anthropic_version": "bedrock-2023-05-31",
+                "system": system_instr,
+                "max_tokens": 512,
+                "temperature": 0.5,
+                "messages": [{"role": "user", "content": prompt}],
+            }
+        )
         response = bedrockClient.invoke_model(
             body=body,
             modelId=model_id,
             accept="application/json",
-            contentType="application/json"
+            contentType="application/json",
         )
         result = json.loads(response["body"].read())
 
@@ -38,26 +36,26 @@ def invoke_claudeSonnet_text( system_instr, prompt, model_id=MODEL_ID):
 # Role
 # Task (e.g., instructions, requirements, examples)
 # Context (e.g., RAG)
-system_instr = '''You are helpful assistant'''
+system_instr = """You are helpful assistant"""
 
 # Input (e.g., question)
 # Output indicator (e.g., format)
 
-#zero-shot prompting
-zero_shot = '''
+# zero-shot prompting
+zero_shot = """
     Provide me domestic animal sounds
-'''
-#Few-shot prompting
-few_shot = '''
+"""
+# Few-shot prompting
+few_shot = """
     You are an animal expert.
     You need to answer questions related to animals only. If the questions are not related to animals, reply with 'I can answer only questions related to animals and this is irrelevant question.'
     Provide me domestic animal sounds
     Dog: bow bow
     Cat: meow meow
-'''
+"""
 
-#Chain-of-thought prompting
-chain_of_thought = '''
+# Chain-of-thought prompting
+chain_of_thought = """
     You are an animal expert.
     You need to answer questions related to animals only. If the questions are not related to animals, reply with 'I can answer only questions related to animals and this is irrelevant question.'
 
@@ -67,10 +65,10 @@ chain_of_thought = '''
     Step 4: Provide the final answer along with animal names clearly.
 
     Provide me domestic animal sounds.
-'''
+"""
 
-#Structured output prompting
-structured_output_strict = '''
+# Structured output prompting
+structured_output_strict = """
     You are an animal expert.
     You need to answer questions related to animals only. If the questions are not related to animals, reply with 'I can answer only questions related to animals and this is irrelevant question.'
     Provide me domestic animal sounds.
@@ -87,7 +85,7 @@ structured_output_strict = '''
             }
         ]
     }
-'''
+"""
 
-response = invoke_claudeSonnet_text(system_instr,structured_output_strict)
+response = invoke_claudeSonnet_text(system_instr, structured_output_strict)
 print("response: ", response)

@@ -4,32 +4,33 @@ from config import BedrockConfig
 
 region = BedrockConfig.REGION
 bedrockAgentClient = boto3.client(service_name="bedrock-agent")
-bedrockRunClient = boto3.client(
-    "bedrock-runtime",
-    region_name=region
-)
+bedrockRunClient = boto3.client("bedrock-runtime", region_name=region)
 
 MODEL_ID = BedrockConfig.MODELS["claude"]
 PROMPT_ID = BedrockConfig.EVALUATE_PROMPT["promptId"]
 PROMPT_VERSION = BedrockConfig.EVALUATE_PROMPT["promptVersion"]
 
+
 def fetch_prompt_template():
 
     response = bedrockAgentClient.get_prompt(
-        promptIdentifier=PROMPT_ID,
-        promptVersion=PROMPT_VERSION
+        promptIdentifier=PROMPT_ID, promptVersion=PROMPT_VERSION
     )
 
     # Correct printing
     print(json.dumps(response["variants"][0], indent=2))
-    print("system:",response["variants"][0]["templateConfiguration"]["text"].get("system", ""))
+    print(
+        "system:",
+        response["variants"][0]["templateConfiguration"]["text"].get("system", ""),
+    )
 
     template = response["variants"][0]["templateConfiguration"]["text"]["text"]
 
-    system_instruction = response["variants"][0]["templateConfiguration"]["text"].get("system", "")
+    system_instruction = response["variants"][0]["templateConfiguration"]["text"].get(
+        "system", ""
+    )
 
     return system_instruction, template
-
 
 
 # Step 1: Generate model output
@@ -37,17 +38,8 @@ def generate_output(user_prompt, system_instruction):
     response = bedrockRunClient.converse(
         modelId=MODEL_ID,
         system=[{"text": system_instruction}],
-        messages=[
-            {
-                "role": "user",
-                "content": [{"text": user_prompt}]
-            }
-        ],
-        inferenceConfig={
-            "temperature": 0.7,
-            "topP": 0.9,
-            "maxTokens": 500
-        }
+        messages=[{"role": "user", "content": [{"text": user_prompt}]}],
+        inferenceConfig={"temperature": 0.7, "topP": 0.9, "maxTokens": 500},
     )
     return response["output"]["message"]["content"][0]["text"]
 
@@ -58,19 +50,11 @@ def evaluate_prompt(prompt_input, prompt_output):
 
     final_prompt = template.replace("{{input}}", prompt_input)
     final_prompt = final_prompt.replace("{{output}}", prompt_output)
-    
+
     converse_params = {
         "modelId": MODEL_ID,
-        "messages": [
-            {
-                "role": "user",
-                "content": [{"text": final_prompt}]
-            }
-        ],
-        "inferenceConfig": {
-            "temperature": 0,
-            "maxTokens": 1000
-        }
+        "messages": [{"role": "user", "content": [{"text": final_prompt}]}],
+        "inferenceConfig": {"temperature": 0, "maxTokens": 1000},
     }
     # Only include system if not empty
     if system_instruction and system_instruction.strip():
@@ -78,7 +62,6 @@ def evaluate_prompt(prompt_input, prompt_output):
     response = bedrockRunClient.converse(**converse_params)
     result = response["output"]["message"]["content"][0]["text"]
     return json.loads(result)
-
 
 
 # Step 3: Compare evaluation results

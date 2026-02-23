@@ -5,6 +5,7 @@ from langchain_core.prompts import ChatPromptTemplate
 
 prompt = get_qna_prompt()
 
+
 def build_rag_chain(llm, retriever):
     # Step 1: Retrieve documents
     def retrieve_docs(question):
@@ -12,27 +13,20 @@ def build_rag_chain(llm, retriever):
         return {
             "input": question,
             "docs": docs,
-            "context": "\n\n".join(doc.page_content for doc in docs)
+            "context": "\n\n".join(doc.page_content for doc in docs),
         }
 
     # Step 2: Generate answer
     def generate_answer(inputs):
         response = llm.invoke(
-            prompt.invoke({
-                "context": inputs["context"],
-                "input": inputs["input"]
-            })
+            prompt.invoke({"context": inputs["context"], "input": inputs["input"]})
         )
-        return {
-            "answer": response.content,
-            "docs": inputs["docs"]
-        }
+        return {"answer": response.content, "docs": inputs["docs"]}
 
     # Step 3: Combine into pipeline
     rag_chain = RunnablePassthrough() | retrieve_docs | generate_answer
 
     return rag_chain
-
 
 
 def build_rag_chain_kb(llm, retriever):

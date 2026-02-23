@@ -9,6 +9,7 @@ region = os.getenv("BEDROCK_REGION", "us-east-1")
 bedrockClient = boto3.client("bedrock-runtime", region_name=region)
 titanModelId = os.getenv("TITAN_MODEL_ID")
 
+
 def invoke_image_model(prompt, model_id=titanModelId):
     # Generate a random seed.
     seed = random.randint(0, 2147483647)
@@ -44,6 +45,7 @@ def invoke_image_model(prompt, model_id=titanModelId):
     with open(image_path, "wb") as file:
         file.write(image_data)
     print(f"The generated image has been saved to {image_path}")
+
 
 # Define the image generation prompt for the model.
 prompt = "A stylized picture of a cute old steampunk robot."
