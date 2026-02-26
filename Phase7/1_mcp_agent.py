@@ -13,7 +13,7 @@ from config import BedrockConfig
 server_params = StdioServerParameters(
     command="python",
     # Make sure to update to the full absolute path to your math_server.py file
-    args=["/Users/dhivyas/Documents/GenAI/AWS GenAI/Training/Phase7/1_mcp_server.py"],
+    args=[BedrockConfig.MCP_PATH+"/mcp_math_server.py"],
 )
 
 bedrock_client = boto3.client(
@@ -25,13 +25,13 @@ async def main():
     client = MultiServerMCPClient(
     {
         "math": {
-            "command": "/Users/dhivyas/Documents/GenAI/AWS GenAI/venv/bin/python",
-            "args": ["/Users/dhivyas/Documents/GenAI/AWS GenAI/Training/Phase7/mcp_math_server.py"],
+            "command": BedrockConfig.PYTHON_PATH,
+            "args": [BedrockConfig.MCP_PATH+"/mcp_math_server.py"],
             "transport": "stdio",
         },
         "weather": {
-            "command": "/Users/dhivyas/Documents/GenAI/AWS GenAI/venv/bin/python",
-            "args": ["/Users/dhivyas/Documents/GenAI/AWS GenAI/Training/Phase7/mcp_weather_server.py"],
+            "command": BedrockConfig.PYTHON_PATH,
+            "args": [BedrockConfig.MCP_PATH+"/mcp_weather_server.py"],
             "transport": "stdio",
         }
     })
