@@ -20,8 +20,6 @@ bedrock_client = boto3.client(
     service_name="bedrock-runtime", region_name=BedrockConfig.REGION
 )
 
-
-
 async def main():
 
     client = MultiServerMCPClient(
